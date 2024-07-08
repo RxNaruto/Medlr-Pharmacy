@@ -2,7 +2,7 @@ import { Router } from "express";
 import { signupTypes,loginTypes } from "../types/user";
 import jwt from "jsonwebtoken"
 import { JWT_SECRET, password } from "../config";
-import { user} from "../database/db";
+import { User} from "../database/db";
 import { comparePassword, hashPassword } from "../types/hashing";
 const userRouter = Router();
 
@@ -20,7 +20,7 @@ userRouter.post("/signup",async(req,res)=>{
         })
 
     }
-    const existingUser = await user.findOne({
+    const existingUser = await User.findOne({
         username: req.body.username
     })
         
@@ -33,7 +33,7 @@ userRouter.post("/signup",async(req,res)=>{
     try {
         const hashedPassword = await hashPassword(body.password);
         
-        const newUser = await user.create({
+        const newUser = await User.create({
           
             username: body.username,
             password: hashedPassword,
@@ -44,6 +44,7 @@ userRouter.post("/signup",async(req,res)=>{
         if(newUser){
            
             const token = jwt.sign({userId: newUser.id},JWT_SECRET)
+            console.log(newUser.id);
             res.status(200).json({
                 message: "Signup complete",
                 token: token
@@ -76,7 +77,7 @@ userRouter.post("/login",async(req,res)=>{
 
     }
     try {
-        const eUser = await user.findOne({
+        const eUser = await User.findOne({
             username: body.username,
            
         })

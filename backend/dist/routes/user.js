@@ -27,7 +27,7 @@ userRouter.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, funct
             message: "Incorrect details"
         });
     }
-    const existingUser = yield db_1.user.findOne({
+    const existingUser = yield db_1.User.findOne({
         username: req.body.username
     });
     if (existingUser) {
@@ -37,13 +37,14 @@ userRouter.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
     try {
         const hashedPassword = yield (0, hashing_1.hashPassword)(body.password);
-        const newUser = yield db_1.user.create({
+        const newUser = yield db_1.User.create({
             username: body.username,
             password: hashedPassword,
             name: body.name
         });
         if (newUser) {
             const token = jsonwebtoken_1.default.sign({ userId: newUser.id }, config_1.JWT_SECRET);
+            console.log(newUser.id);
             res.status(200).json({
                 message: "Signup complete",
                 token: token
@@ -71,7 +72,7 @@ userRouter.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, functi
         });
     }
     try {
-        const eUser = yield db_1.user.findOne({
+        const eUser = yield db_1.User.findOne({
             username: body.username,
         });
         if (!eUser) {
@@ -90,34 +91,6 @@ userRouter.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, functi
             res.status(200).json({
                 message: "Signin complete",
                 token: token
-            });
-        }
-    }
-    catch (error) {
-        console.log(error);
-        res.status(500).json({
-            message: "Internal Server Error"
-        });
-    }
-}));
-userRouter.delete("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const body = req.body;
-    const { success } = user_1.loginTypes.safeParse(body);
-    if (!success) {
-        return res.status(403).json({
-            message: "Incorrect details"
-        });
-    }
-    try {
-        const eUser = yield db_1.user.deleteOne({ username: body.username });
-        if (eUser) {
-            res.status(200).json({
-                message: "user deleted"
-            });
-        }
-        else {
-            res.status(403).json({
-                message: "User doesn't exist"
             });
         }
     }
