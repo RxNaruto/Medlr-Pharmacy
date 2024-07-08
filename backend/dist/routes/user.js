@@ -17,6 +17,7 @@ const user_1 = require("../types/user");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("../config");
 const db_1 = require("../database/db");
+const hashing_1 = require("../types/hashing");
 const userRouter = (0, express_1.Router)();
 userRouter.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const body = req.body;
@@ -35,14 +36,13 @@ userRouter.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
     }
     try {
-        console.log("inside try catch");
+        const hashedPassword = yield (0, hashing_1.hashPassword)(body.password);
         const newUser = yield db_1.user.create({
             username: body.username,
-            password: body.password,
+            password: hashedPassword,
             name: body.name
         });
         if (newUser) {
-            console.log("inside the newUser");
             const token = jsonwebtoken_1.default.sign({ userId: newUser.id }, config_1.JWT_SECRET);
             res.status(200).json({
                 message: "Signup complete",
@@ -72,19 +72,24 @@ userRouter.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
     try {
         const eUser = yield db_1.user.findOne({
-            username: req.body.username,
-            password: req.body.password
+            username: body.username,
         });
-        if (eUser) {
+        if (!eUser) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+        const hashPassword = yield (0, hashing_1.comparePassword)(body.password, eUser.password);
+        if (!hashPassword) {
+            return res.status(401).json({
+                message: "Invalid credentails"
+            });
+        }
+        else {
             const token = jsonwebtoken_1.default.sign({ userId: eUser.id }, config_1.JWT_SECRET);
             res.status(200).json({
                 message: "Signin complete",
                 token: token
-            });
-        }
-        else {
-            res.status(403).json({
-                message: "User doesn't exist"
             });
         }
     }
