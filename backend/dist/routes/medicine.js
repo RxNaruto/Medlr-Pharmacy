@@ -12,8 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const medicine_1 = require("../types/medicine");
 const db_1 = require("../database/db");
+const pharmacyAuth_1 = require("../middleware/pharmacyAuth");
 const medicineRouter = (0, express_1.Router)();
-medicineRouter.post("/addMedicine", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+medicineRouter.post("/addMedicine", pharmacyAuth_1.PharmacyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const body = req.body;
     const { success } = medicine_1.addMedicineTypes.safeParse(body);
     if (!success) {
@@ -49,7 +50,7 @@ medicineRouter.post("/addMedicine", (req, res) => __awaiter(void 0, void 0, void
         });
     }
 }));
-medicineRouter.put("/update/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+medicineRouter.put("/update/:id", pharmacyAuth_1.PharmacyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const body = req.body;
     const { id } = req.params;
     const { success } = medicine_1.updateMedicineTypes.safeParse(body);
@@ -80,7 +81,7 @@ medicineRouter.put("/update/:id", (req, res) => __awaiter(void 0, void 0, void 0
         });
     }
 }));
-medicineRouter.delete("/delete/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+medicineRouter.delete("/delete/:id", pharmacyAuth_1.PharmacyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
         yield db_1.Medicine.findByIdAndDelete(id);
@@ -95,7 +96,7 @@ medicineRouter.delete("/delete/:id", (req, res) => __awaiter(void 0, void 0, voi
         });
     }
 }));
-medicineRouter.get("/get/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+medicineRouter.get("/get/:id", pharmacyAuth_1.PharmacyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
         const getMedicine = yield db_1.Medicine.findById(id);
@@ -110,7 +111,7 @@ medicineRouter.get("/get/:id", (req, res) => __awaiter(void 0, void 0, void 0, f
         });
     }
 }));
-medicineRouter.get("/getall/:id/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+medicineRouter.get("/getall/:id/", pharmacyAuth_1.PharmacyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
         const checkPharmacy = yield db_1.Pharmacy.findById(id).populate('medicines');

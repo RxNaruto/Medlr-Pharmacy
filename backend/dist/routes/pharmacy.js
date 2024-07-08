@@ -8,11 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const pharmacy_1 = require("../types/pharmacy");
 const pharmacyAuth_1 = require("../middleware/pharmacyAuth");
 const db_1 = require("../database/db");
+const cache_1 = __importDefault(require("../database/cache"));
 const pharmacyRouter = (0, express_1.Router)();
 pharmacyRouter.post("/addPharmacy", pharmacyAuth_1.PharmacyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const body = req.body;
@@ -48,6 +52,54 @@ pharmacyRouter.post("/addPharmacy", pharmacyAuth_1.PharmacyAuth, (req, res) => _
         console.error("Error adding pharmacy:", err);
         res.status(500).json({
             message: "Internal Server Error"
+        });
+    }
+}));
+pharmacyRouter.get('/getallPharma', pharmacyAuth_1.PharmacyAuth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const cacheKey = 'pharmacies';
+    try {
+        let pharmacies = cache_1.default.get(cacheKey);
+        if (!pharmacies) {
+            console.log('Fetching pharmacies from database');
+            pharmacies = yield db_1.Pharmacy.find();
+            cache_1.default.set(cacheKey, pharmacies, 3600);
+        }
+        else {
+            console.log('Fetching pharmacies from cache');
+        }
+        return res.status(200).json({
+            allPharmacy: pharmacies
+        });
+    }
+    catch (error) {
+        console.error('Error fetching pharmacies:', error);
+        res.status(500).json({
+            message: 'Internal server Error'
+        });
+    }
+}));
+pharmacyRouter.get("/search", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name } = req.query;
+    if (!name) {
+        return res.status(400).json({
+            message: "Name query parameter is required"
+        });
+    }
+    try {
+        const pharmacies = yield db_1.Pharmacy.find({ name: new RegExp(name, 'i') });
+        if (pharmacies.length === 0) {
+            return res.status(404).json({
+                message: "No pharmacies found with the given name"
+            });
+        }
+        res.status(200).json({
+            pharmacies: pharmacies
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Internal server error"
         });
     }
 }));

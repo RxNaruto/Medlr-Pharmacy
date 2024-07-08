@@ -1,6 +1,7 @@
 import { Request, Response, Router } from "express";
 import { addMedicineTypes, updateMedicineTypes } from "../types/medicine";
 import { Medicine, Pharmacy } from "../database/db";
+import { PharmacyAuth } from "../middleware/pharmacyAuth";
 
 const medicineRouter = Router();
 interface medicineBody{
@@ -13,7 +14,7 @@ interface medicineBody{
 
 }
 
-medicineRouter.post("/addMedicine" ,async(req:Request,res: Response)=>{
+medicineRouter.post("/addMedicine" ,PharmacyAuth,async(req:Request,res: Response)=>{
     const body: medicineBody = req.body;
     const {success} = addMedicineTypes.safeParse(body);
     if(!success){
@@ -60,7 +61,7 @@ interface medicineUpdateBody{
     quantity: number;
    
 }
-medicineRouter.put("/update/:id" ,async(req:Request,res: Response)=>{
+medicineRouter.put("/update/:id" ,PharmacyAuth,async(req:Request,res: Response)=>{
     const body: medicineUpdateBody = req.body;
     const {id} = req.params;
     const {success} = updateMedicineTypes.safeParse(body);
@@ -95,7 +96,7 @@ medicineRouter.put("/update/:id" ,async(req:Request,res: Response)=>{
 
 
 })
-medicineRouter.delete("/delete/:id" ,async(req:Request,res: Response)=>{
+medicineRouter.delete("/delete/:id" ,PharmacyAuth,async(req:Request,res: Response)=>{
     const {id} = req.params;
    try {
      await Medicine.findByIdAndDelete(id)
@@ -113,7 +114,7 @@ medicineRouter.delete("/delete/:id" ,async(req:Request,res: Response)=>{
 
 
 })
-medicineRouter.get("/get/:id" , async(req:Request,res: Response)=>{
+medicineRouter.get("/get/:id" , PharmacyAuth,async(req:Request,res: Response)=>{
     const {id} = req.params;
     try {
         const getMedicine = await Medicine.findById(id);
@@ -131,7 +132,7 @@ medicineRouter.get("/get/:id" , async(req:Request,res: Response)=>{
 
 })
 
-medicineRouter.get("/getall/:id/", async (req: Request, res: Response) => {
+medicineRouter.get("/getall/:id/",PharmacyAuth, async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const checkPharmacy = await Pharmacy.findById(id).populate('medicines');
