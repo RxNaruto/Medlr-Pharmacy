@@ -49,4 +49,85 @@ medicineRouter.post("/addMedicine", (req, res) => __awaiter(void 0, void 0, void
         });
     }
 }));
+medicineRouter.put("/update/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const body = req.body;
+    const { id } = req.params;
+    const { success } = medicine_1.updateMedicineTypes.safeParse(body);
+    if (!success) {
+        return res.status(403).json({
+            message: "Incorrect details"
+        });
+    }
+    try {
+        const newMedicine = yield db_1.Medicine.findByIdAndUpdate(id, {
+            $set: {
+                name: body.name,
+                description: body.description,
+                price: body.price,
+                discount: body.discount,
+                quantity: body.quantity,
+            }
+        }, { new: true, runValidators: true });
+        return res.status(200).json({
+            message: "Medicine updated successfully",
+            Medicine: newMedicine
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal Server error"
+        });
+    }
+}));
+medicineRouter.delete("/delete/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        yield db_1.Medicine.findByIdAndDelete(id);
+        return res.status(200).json({
+            message: "Medicine deleted successfully",
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal Server error"
+        });
+    }
+}));
+medicineRouter.get("/get/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const getMedicine = yield db_1.Medicine.findById(id);
+        res.status(200).json({
+            medicine: getMedicine
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}));
+medicineRouter.get("/getall/:id/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const checkPharmacy = yield db_1.Pharmacy.findById(id).populate('medicines');
+        if (!checkPharmacy) {
+            return res.status(404).json({
+                message: "Pharmacy not found"
+            });
+        }
+        res.status(200).json({
+            medicines: checkPharmacy.medicines
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}));
 exports.default = medicineRouter;
