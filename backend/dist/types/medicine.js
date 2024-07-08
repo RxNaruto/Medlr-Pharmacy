@@ -8,4 +8,5 @@ exports.addMedicineTypes = zod_1.z.object({
     price: zod_1.z.number().nonnegative(),
     discount: zod_1.z.number().max(100).nonnegative(),
     quantity: zod_1.z.number(),
+    pharmacy: zod_1.z.string()
 });

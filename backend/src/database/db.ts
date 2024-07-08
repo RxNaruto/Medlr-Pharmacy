@@ -59,7 +59,11 @@ const pharmacySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
+    },
+    medicines: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Medicine'
+    }]
 });
 
 const medicineSchema = new mongoose.Schema({
@@ -95,13 +99,13 @@ const medicineSchema = new mongoose.Schema({
     
     imageUrl: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
     pharmacy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Pharmacy',
-        required: true
+        
     }
 })
 

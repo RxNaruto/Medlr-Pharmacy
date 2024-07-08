@@ -63,7 +63,11 @@ const pharmacySchema = new mongoose_1.default.Schema({
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
+    },
+    medicines: [{
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'Medicine'
+        }]
 });
 const medicineSchema = new mongoose_1.default.Schema({
     name: {
@@ -95,13 +99,12 @@ const medicineSchema = new mongoose_1.default.Schema({
     },
     imageUrl: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
     pharmacy: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'Pharmacy',
-        required: true
     }
 });
 exports.User = mongoose_1.default.model('User', userSchema);

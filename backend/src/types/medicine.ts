@@ -6,6 +6,7 @@ export const addMedicineTypes = z.object({
     price: z.number().nonnegative(),
     discount: z.number().max(100).nonnegative(),
     quantity: z.number(),
+    pharmacy: z.string()
     
 
 
