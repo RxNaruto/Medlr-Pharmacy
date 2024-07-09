@@ -15,6 +15,10 @@ Open it in Code editor and Move to backend Directory
 ```bash
   cd/backend
 ```
+Now in config.ts file enter your database connection string 
+```bash
+  DATABASE_URL = " "
+```
 Now in terminal write this command
 ```bash
   npm install
